@@ -1,14 +1,6 @@
--- =====================================================================
--- Práctica 2 - Bases de Datos (GIAR) - Mundial de baloncesto
--- SGBD: Oracle
--- Estructura: 0) DROP  1) CREATE TABLE (sin FKs)  2) ALTER TABLE (FKs)
--- =====================================================================
 
-
--- ---------------------------------------------------------------------
 -- 0. BORRAR LAS TABLAS (para poder relanzar el script sin errores)
 --    La primera vez darán error ORA-00942 (la tabla no existe): es normal.
--- ---------------------------------------------------------------------
 DROP TABLE CUADRO       CASCADE CONSTRAINTS;
 DROP TABLE JUGADOR      CASCADE CONSTRAINTS;
 DROP TABLE STAFF        CASCADE CONSTRAINTS;
@@ -20,9 +12,7 @@ DROP TABLE FASE         CASCADE CONSTRAINTS;
 DROP TABLE PAIS         CASCADE CONSTRAINTS;
 
 
--- ---------------------------------------------------------------------
 -- 1. CREACIÓN DE TABLAS (PK, UNIQUE, NOT NULL, CHECK; todavía sin FKs)
--- ---------------------------------------------------------------------
 
 CREATE TABLE PAIS (
   codpais CHAR(3)      CONSTRAINT pk_pais PRIMARY KEY,
@@ -99,14 +89,12 @@ CREATE TABLE CUADRO (
 );
 
 
--- ---------------------------------------------------------------------
 -- 2. CLAVES AJENAS (al final, cuando ya existen todas las tablas)
 --    Borrado RESTRICTIVO -> no se pone nada (es lo que hace Oracle por defecto)
 --    Borrado CASCADA     -> ON DELETE CASCADE
 --    Borrado a NULOS     -> ON DELETE SET NULL
 --    Actualización CASCADA -> Oracle NO tiene ON UPDATE CASCADE: no se puede
 --                             expresar con DDL (haría falta un trigger).
--- ---------------------------------------------------------------------
 
 ALTER TABLE EQUIPO
   ADD CONSTRAINT fk_equipo_pais FOREIGN KEY (codpais)
@@ -157,7 +145,6 @@ ALTER TABLE CUADRO
   REFERENCES EQUIPO(codeq);
 
 
--- ---------------------------------------------------------------------
 -- 3. RESTRICCIONES QUE NO SE PUEDEN IMPLEMENTAR CON DDL
 --    (un CHECK solo ve la fila actual de su propia tabla; estas implican
 --     varias tablas o contar filas -> harían falta triggers)
@@ -168,12 +155,25 @@ ALTER TABLE CUADRO
 --  - Todo jugador debe ser participante masculino nacido en el país de su
 --    equipo.
 --  - Todas las "Actualización CASCADA" (Oracle no soporta ON UPDATE).
--- ---------------------------------------------------------------------
 
 
--- ---------------------------------------------------------------------
--- 4. COMPROBACIÓN
--- ---------------------------------------------------------------------
+
+
+
+-- 4. PERMISOS PARA EL COMPAÑERO
+GRANT SELECT, INSERT, DELETE, UPDATE ON PAIS         TO aodnokl;
+GRANT SELECT, INSERT, DELETE, UPDATE ON EQUIPO       TO aodnokl;
+GRANT SELECT, INSERT, DELETE, UPDATE ON PARTICIPANTE TO aodnokl;
+GRANT SELECT, INSERT, DELETE, UPDATE ON STAFF        TO aodnokl;
+GRANT SELECT, INSERT, DELETE, UPDATE ON JUGADOR      TO aodnokl;
+GRANT SELECT, INSERT, DELETE, UPDATE ON POSICION     TO aodnokl;
+GRANT SELECT, INSERT, DELETE, UPDATE ON SEDE         TO aodnokl;
+GRANT SELECT, INSERT, DELETE, UPDATE ON FASE         TO aodnokl;
+GRANT SELECT, INSERT, DELETE, UPDATE ON CUADRO       TO aodnokl;
+COMMIT;
+
+
+-- 5. COMPROBACIÓN
 SELECT table_name FROM user_tables ORDER BY table_name;
 
 SELECT table_name, constraint_name, constraint_type, delete_rule
